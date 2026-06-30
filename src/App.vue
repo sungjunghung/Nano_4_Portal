@@ -4,10 +4,10 @@ import BackgroundGeometry from './components/BackgroundGeometry.vue'
 import SiteNav from './components/SiteNav.vue'
 import HeroSection from './components/HeroSection.vue'
 import CoreValues from './components/CoreValues.vue'
-import PerformanceChart from './components/PerformanceChart.vue'
-import TechSpecs from './components/TechSpecs.vue'
 import UseCases from './components/UseCases.vue'
+import OperationVideo from './components/OperationVideo.vue'
 import OmniversePortal from './components/OmniversePortal.vue'
+import JanusModal from './components/JanusModal.vue'
 
 useSmoothScroll()
 </script>
@@ -17,8 +17,8 @@ useSmoothScroll()
   <SiteNav />
   <HeroSection />
   <CoreValues />
-  <PerformanceChart />
-  <TechSpecs />
   <UseCases />
+  <OperationVideo />
   <OmniversePortal />
+  <JanusModal />
 </template>

@@ -4,6 +4,14 @@ dist-ssr
 *.local
 .DS_Store
 
+# 環境變數（含 Janus token，勿提交）
+.env
+.env.*
+!.env.example
+
+# 分離的 demo 專案（後續移除）
+janus-demo
+
 # Editor / logs
 .vscode/*
 !.vscode/extensions.json

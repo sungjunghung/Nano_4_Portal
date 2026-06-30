@@ -1,19 +1,19 @@
 <script setup>
 const values = [
   {
-    icon: '🛡️',
-    title: '主權 AI 戰略地位',
-    desc: '提供符合國家資安標準的運算環境，讓關鍵科研數據留在國內，確保技術主權與研發成果不外流。',
-  },
-  {
-    icon: '⚡',
-    title: '極致運算效能',
-    desc: '實測效能達 81.55 PFlops，完美支撐兆級參數模型的訓練需求，大幅縮短科研週期。',
-  },
-  {
     icon: '🌐',
-    title: '跨域產業創新',
-    desc: '從 3nm 半導體製程模擬到精準醫療研究，晶創 26 是推動台灣產業升級最強大的算力後盾。',
+    title: '物理級即時模擬',
+    desc: '以 RTX 即時光線追蹤與 PhysX 物理運算驅動，讓虛擬環境的光影、材質與動態貼近真實世界。',
+  },
+  {
+    icon: '☁️',
+    title: '雲端 SaaS 一鍵進場',
+    desc: '透過線上 SaaS 串流進入虛擬環境，免自建模型或 USD、免高階顯示卡。繁重運算交由我們高效能的雲端機器承擔，開啟瀏覽器即可進場。',
+  },
+  {
+    icon: '🎮',
+    title: '沉浸式遠端操控',
+    desc: '透過低延遲串流進入虛擬環境，即時監測場域狀態，並以鍵盤、搖桿遠端操控視角與裝置。',
   },
 ]
 </script>
@@ -22,9 +22,9 @@ const values = [
   <section id="vision" class="py-24 px-6 bg-slate-50/62">
     <div class="max-w-7xl mx-auto">
       <div class="text-center mb-16">
-        <h2 class="text-7xl font-bold mb-4 uppercase tracking-wide bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">為什麼選擇晶創 26？</h2>
+        <h2 class="section-title mb-4 mx-auto">為什麼選擇我們的虛擬環境平台？</h2>
         <div class="w-16 h-1 bg-primary mx-auto"></div>
-        <p class="mt-6 text-slate-500 max-w-2xl mx-auto">這不僅是一座資料中心，更是台灣推動「主權 AI」與「半導體創新」的國家級戰略堡壘。</p>
+        <p class="mt-6 text-slate-500 max-w-2xl mx-auto">以物理級即時模擬與雲端串流，打造可監測、可操控的數位孿生虛擬環境。</p>
       </div>
       <div class="grid md:grid-cols-3 gap-8">
         <div v-for="value in values" :key="value.title"

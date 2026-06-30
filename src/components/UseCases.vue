@@ -2,30 +2,30 @@
 import { ref, computed } from 'vue'
 
 const cases = {
-  semi: {
-    label: '半導體設計',
-    title: '半導體設計優化',
-    desc: '運用 AI 驅動晶片架構優化與封裝模擬。在 3nm 與更先進製程的研發中，透過晶創 26 的強大算力，加速電子設計自動化 (EDA) 的模擬驗證。',
-    list: ['先進封裝熱傳導模擬與驗證', '晶片佈局智慧化優化', '奈米級製程缺陷檢測模型'],
-    icon: '💾',
+  robot: {
+    label: '機器人與自駕模擬',
+    title: '機器人與自駕訓練模擬',
+    desc: '在物理級虛擬環境中大規模生成訓練場景，加速機器人與自駕系統的感知與決策訓練，於數位孿生中驗證後再落地，大幅縮短真實路測成本。',
+    list: ['合成訓練資料生成', '感測器與動力學模擬', '強化學習場景訓練'],
+    image: import.meta.env.BASE_URL + '01.png',
   },
-  llm: {
-    label: '大型語言模型',
-    title: '大型語言模型 (LLM)',
-    desc: '提供專為兆級參數設計的訓練環境。晶創 26 能顯著加速繁瑣的 Pre-training 流程，協助開發者快速建立具備在地文化特徵的產業專屬 AI 模型。',
-    list: ['台版主權 LLM 模型訓練', '多模態 AI 推理加速', '高效能分散式運算框架'],
-    icon: '🧠',
+  city: {
+    label: '智慧城市孿生',
+    title: '智慧城市數位孿生',
+    desc: '整合空間、交通與感測資料建立城市的數位孿生，即時模擬人流、能耗與災害情境，支援都市規劃與營運決策。',
+    list: ['即時人流與交通模擬', '能耗與環境推演', '防災情境演練'],
+    image: import.meta.env.BASE_URL + '02.jpg',
   },
-  science: {
-    label: '精密科學研究',
-    title: '精密科學研究',
-    desc: '為生醫、氣候變遷及量子計算提供數據模擬支撐。Nano 4 的高頻寬互連架構能確保複雜運算的精準與高效，縮短科學發現的最後一哩路。',
-    list: ['蛋白質折疊與結構預測', '高解析度氣候災害模擬', '藥物分子開發與篩選'],
-    icon: '🧪',
+  factory: {
+    label: '智慧工廠孿生',
+    title: '建築與工廠數位孿生',
+    desc: '在虛擬環境中重建產線、設備與空間，進行佈局、流程與機械手臂的即時模擬與優化，導入實體前先於數位孿生完成驗證。',
+    list: ['產線佈局與節拍模擬', '機械手臂路徑優化', '設備異常即時預警'],
+    image: import.meta.env.BASE_URL + '03.png',
   },
 }
 
-const activeKey = ref('semi')
+const activeKey = ref('robot')
 const fading = ref(false)
 const active = computed(() => cases[activeKey.value])
 
@@ -43,8 +43,8 @@ function switchCase(key) {
   <section id="cases" class="py-24 px-6 bg-white/62">
     <div class="max-w-7xl mx-auto">
       <div class="text-center mb-16">
-        <h2 class="text-3xl font-bold mb-4">引領關鍵領域突破</h2>
-        <p class="text-slate-500 italic">晶創 26 正在支援以下關鍵產業的跨代進化</p>
+        <h2 class="section-title mb-4 mx-auto">數位孿生應用場景</h2>
+        <p class="text-slate-500 italic">以即時虛擬環境與數位孿生，加速以下場域的模擬、訓練與決策</p>
       </div>
 
       <div class="flex flex-wrap justify-center gap-4 mb-12">
@@ -69,9 +69,9 @@ function switchCase(key) {
           </ul>
         </div>
         <div class="md:w-1/2 flex justify-center">
-          <div
-            class="w-72 h-72 bg-white rounded-full border-[12px] border-primary-100/50 flex items-center justify-center animate-pulse-soft shadow-inner">
-            <span class="text-7xl">{{ active.icon }}</span>
+          <div class="eng-module cut-tr overflow-hidden w-full max-w-md aspect-16/10">
+            <img :src="active.image" :alt="active.title" loading="lazy"
+              class="w-full h-full object-cover" />
           </div>
         </div>
       </div>

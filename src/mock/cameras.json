@@ -1,0 +1,92 @@
+[
+  {
+    "id": "7d8d460a-8c7c-4305-8a79-89d8e2172545", "name": "4003-01",
+    "streamName": "user_persistent_Camera_001",
+    "class": "Omniverse", "status": "online",
+    "url": "4003",
+    "paasId": "6391ac03-4a01-429b-b8be-6a0163fad084",
+    "common_id": "100-7d8d460a-8c7c-4305-8a79-89d8e2172545",
+    "longitude": null, "latitude": null,
+    "createdAt": "2023-11-01"
+  },
+  {
+    "id": "c69056fa-15df-448a-b803-62c43b57853b", "name": "4003-02",
+    "streamName": "user_persistent_Camera_002",
+    "class": "Omniverse", "status": "online",
+    "url": "4003",
+    "paasId": "6391ac03-4a01-429b-b8be-6a0163fad084",
+    "common_id": "100-c69056fa-15df-448a-b803-62c43b57853b",
+    "longitude": null, "latitude": null,
+    "createdAt": "2023-11-01"
+  },
+  {
+    "id": "a4089002-df1c-4d4d-98e9-e6acfb9c978b", "name": "4003-03",
+    "streamName": "user_persistent_Camera_003",
+    "class": "Omniverse", "status": "online",
+    "url": "4003",
+    "paasId": "6391ac03-4a01-429b-b8be-6a0163fad084",
+    "common_id": "100-a4089002-df1c-4d4d-98e9-e6acfb9c978b",
+    "longitude": null, "latitude": null,
+    "createdAt": "2023-11-01"
+  },
+  {
+    "id": "66de37c3-3a52-43fc-9111-e44b619d8c65", "name": "4001-01",
+    "streamName": "user_persistent_Camera_001",
+    "class": "Omniverse", "status": "online",
+    "url": "4001",
+    "paasId": "6391ac03-4a01-429b-b8be-6a0163fad084",
+    "common_id": "100-66de37c3-3a52-43fc-9111-e44b619d8c65",
+    "longitude": null, "latitude": null,
+    "createdAt": "2023-11-01"
+  },
+  {
+    "id": "fcd3c3a3-5805-4046-9fdb-d94a15dd9978", "name": "4001-02",
+    "streamName": "user_persistent_Camera_002",
+    "class": "Omniverse", "status": "online",
+    "url": "4001",
+    "paasId": "6391ac03-4a01-429b-b8be-6a0163fad084",
+    "common_id": "100-fcd3c3a3-5805-4046-9fdb-d94a15dd9978",
+    "longitude": null, "latitude": null,
+    "createdAt": "2023-11-01"
+  },
+  {
+    "id": "fae21af6-3064-48ff-95c6-70477af9e4b0", "name": "4001-03",
+    "streamName": "user_persistent_Camera_003",
+    "class": "Omniverse", "status": "online",
+    "url": "4001",
+    "paasId": "6391ac03-4a01-429b-b8be-6a0163fad084",
+    "common_id": "100-fae21af6-3064-48ff-95c6-70477af9e4b0",
+    "longitude": null, "latitude": null,
+    "createdAt": "2023-11-01"
+  },
+  {
+    "id": "bf40f47c-2f75-442d-adba-ef061b9deb55", "name": "4010-01",
+    "streamName": "user_persistent_Camera_001",
+    "class": "Omniverse", "status": "online",
+    "url": "4010",
+    "paasId": "6391ac03-4a01-429b-b8be-6a0163fad084",
+    "common_id": "100-bf40f47c-2f75-442d-adba-ef061b9deb55",
+    "longitude": null, "latitude": null,
+    "createdAt": "2023-11-01"
+  },
+  {
+    "id": "23cdfe3b-96ed-4d07-b2d3-9fcfac3b7a85", "name": "4010-02",
+    "streamName": "user_persistent_Camera_002",
+    "class": "Omniverse", "status": "online",
+    "url": "4010",
+    "paasId": "6391ac03-4a01-429b-b8be-6a0163fad084",
+    "common_id": "100-23cdfe3b-96ed-4d07-b2d3-9fcfac3b7a85",
+    "longitude": null, "latitude": null,
+    "createdAt": "2023-11-01"
+  },
+  {
+    "id": "1960ef98-3562-4dbb-b970-d10499770bcd", "name": "4010-03",
+    "streamName": "user_persistent_Camera_003",
+    "class": "Omniverse", "status": "online",
+    "url": "4010",
+    "paasId": "6391ac03-4a01-429b-b8be-6a0163fad084",
+    "common_id": "100-1960ef98-3562-4dbb-b970-d10499770bcd",
+    "longitude": null, "latitude": null,
+    "createdAt": "2023-11-01"
+  }
+]

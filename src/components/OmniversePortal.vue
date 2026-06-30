@@ -1,20 +1,10 @@
 <script setup>
-import { ref, defineAsyncComponent } from 'vue'
+import { useJanusModal } from '../composables/useJanusModal'
+import { useOnlineCount } from '../composables/useOnlineCount'
 
-// 延遲載入：three.js 切成獨立 chunk，只有開啟 modal 時才下載
-const OmniverseViewer = defineAsyncComponent(() => import('./OmniverseViewer.vue'))
-
-const modal = ref(null)
-const isOpen = ref(false)
-
-const open = () => {
-  modal.value?.showModal() // 先開啟讓容器有尺寸
-  isOpen.value = true       // 再掛載 Three.js 檢視器
-}
-const close = () => {
-  isOpen.value = false      // 卸載檢視器 → 觸發清理
-  modal.value?.close()
-}
+// 開啟全站共用的示範場域 modal
+const { open } = useJanusModal()
+const { online, capacity } = useOnlineCount()
 </script>
 
 <template>
@@ -44,10 +34,22 @@ const close = () => {
       <span class="hidden md:block pointer-events-none absolute -right-3 -bottom-3 w-7 h-7 border-r-2 border-b-2 border-accent/60"></span>
       <div class="mb-12">
         <span class="text-accent font-bold tracking-[0.2em] uppercase text-[10px] mb-4 block">NVIDIA Omniverse Digital Twin</span>
-        <h2 class="text-4xl md:text-5xl font-bold text-white mb-8 tracking-tight">晶創 26 Nano 4 數位孿生環境</h2>
+        <h2 class="section-title mb-8 mx-auto">晶創 26 Nano 4 數位孿生環境</h2>
         <p class="text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed font-light">
           跨越物理邊界，進入基於實時物理模擬的虛擬機房。監測 GPU 負載分布、進行硬體配置模擬，在 3D 空間中直觀掌控您的運算計畫。
         </p>
+      </div>
+
+      <!-- 場域即時在線人數 -->
+      <div class="flex items-center justify-center gap-3 mb-10" title="虛擬環境目前連線人數">
+        <span class="relative flex h-3 w-3">
+          <span class="absolute inline-flex h-full w-full rounded-full bg-accent opacity-75 animate-ping"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-accent"></span>
+        </span>
+        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">場域在線</span>
+        <span class="text-4xl md:text-5xl font-bold text-white tabular-nums leading-none">
+          {{ online }}<span class="text-2xl md:text-3xl text-slate-500">/{{ capacity }}</span>
+        </span>
       </div>
 
       <button type="button" @click="open" class="px-14 py-7 text-white eng-btn font-bold text-xl flex flex-col items-center group cursor-pointer
@@ -71,19 +73,6 @@ const close = () => {
         </div>
       </div>
     </div>
-
-    <!-- 滿版 Modal：寬高 = 視窗 - 4rem，置中 → 四周各留 2rem margin -->
-    <dialog ref="modal" class="modal" @cancel.prevent>
-      <div
-        class="modal-box max-w-none w-[calc(100vw-4rem)] max-h-none h-[calc(100vh-4rem)] p-0 rounded-2xl overflow-hidden bg-black relative">
-        <!-- Three.js 雙搖桿球體控制系統（暫時內容） -->
-        <OmniverseViewer v-if="isOpen" />
-
-        <!-- 關閉鈕（只有按 ✕ 才能關閉） -->
-        <button type="button" @click="close"
-          class="btn btn-sm btn-circle btn-ghost text-white absolute right-4 top-4 z-20">✕</button>
-      </div>
-    </dialog>
   </footer>
 </template>
 

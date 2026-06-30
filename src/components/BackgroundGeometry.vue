@@ -83,33 +83,37 @@ const islandDots = [
 
 .floorplan {
   position: absolute;
-  inset: 0;
+  left: 0;
+  top: -30%;
   width: 100%;
-  height: 100%;
+  height: 160%;
+  /* 捲動視差：以 scroll-progress 映射 ±220px 位移（合成層、順滑，且有界不露邊） */
+  transform: translate3d(0, calc(var(--scroll-progress, 0) * 440px - 220px), 0);
+  will-change: transform;
 }
 
 .grid-line {
   fill: none;
   stroke: color-mix(in oklch, var(--color-primary) 10%, transparent);
-  stroke-width: 1;
+  stroke-width: 0.5;
 }
 
 .module {
   fill: color-mix(in oklch, var(--color-primary) 6%, transparent);
   stroke: color-mix(in oklch, var(--color-primary) 26%, transparent);
-  stroke-width: 1.2;
+  stroke-width: 0.7;
 }
 
 .trace {
   fill: none;
   stroke: color-mix(in oklch, var(--color-primary) 28%, transparent);
-  stroke-width: 1.4;
+  stroke-width: 0.8;
   stroke-linejoin: round;
   stroke-linecap: round;
 }
 .trace--active {
   stroke: color-mix(in oklch, var(--color-accent) 60%, transparent);
-  stroke-width: 1.7;
+  stroke-width: 1;
   stroke-dasharray: 9 11;
   animation: trace-flow 6s linear infinite;
 }
@@ -120,7 +124,7 @@ const islandDots = [
 .island {
   fill: none;
   stroke: color-mix(in oklch, var(--color-accent) 40%, transparent);
-  stroke-width: 1.4;
+  stroke-width: 0.8;
   stroke-dasharray: 3 6;
 }
 
@@ -140,14 +144,18 @@ const islandDots = [
   position: absolute;
   left: 0;
   right: 0;
-  height: 2px;
-  top: calc(var(--scroll-progress, 0) * 100%);
+  top: 0;
+  height: 1px;
+  /* 用 transform 位移而非 top，避免逐格重排造成頓挫 */
+  transform: translate3d(0, calc(var(--scroll-progress, 0) * 100vh), 0);
+  will-change: transform;
   background: linear-gradient(90deg, transparent, color-mix(in oklch, var(--color-accent) 55%, transparent) 50%, transparent);
   box-shadow: 0 0 16px color-mix(in oklch, var(--color-accent) 35%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .trace--active, .pad--active { animation: none; }
-  .scan { top: 50%; }
+  .floorplan { transform: none; }
+  .scan { transform: none; top: 50%; }
 }
 </style>
