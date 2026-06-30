@@ -1,0 +1,127 @@
+/* Tailwind CSS v4 —— 透過 @tailwindcss/vite 引入 */
+@import "tailwindcss";
+
+/* daisyUI v5 —— 以 Tailwind 外掛方式載入。
+   預設主題交給下方自訂的 mytheme-light（default: true），這裡僅額外保留 dark 供深色模式。 */
+@plugin "daisyui" {
+  themes: dark --prefersdark;
+}
+
+/* primary */
+@theme {
+  --color-primary-50: oklch(0.939 0.026 266.63);
+  --color-primary-100: oklch(0.88 0.051 263.19);
+  --color-primary-200: oklch(0.767 0.105 257.99);
+  --color-primary-300: oklch(0.646 0.154 251.69);
+  --color-primary-400: oklch(0.534 0.128 251.79);
+  --color-primary-500: oklch(0.417 0.099 251.47);
+  --color-primary-600: oklch(0.362 0.086 251.49);
+  --color-primary-700: oklch(0.301 0.073 252.08);
+  --color-primary-800: oklch(0.251 0.059 250.65);
+  --color-primary-900: oklch(0.188 0.043 251.66);
+  --color-primary-950: oklch(0.148 0.035 253.12);
+}
+
+/* secondary */
+@theme {
+  --color-secondary-50: oklch(0.965 0.006 239.73);
+  --color-secondary-100: oklch(0.929 0.011 234.76);
+  --color-secondary-200: oklch(0.852 0.026 229.14);
+  --color-secondary-300: oklch(0.783 0.033 227.33);
+  --color-secondary-400: oklch(0.714 0.03 228.22);
+  --color-secondary-500: oklch(0.641 0.027 229.36);
+  --color-secondary-600: oklch(0.542 0.023 229.35);
+  --color-secondary-700: oklch(0.438 0.018 229.34);
+  --color-secondary-800: oklch(0.334 0.015 232.16);
+  --color-secondary-900: oklch(0.24 0.009 234.12);
+  --color-secondary-950: oklch(0.188 0.007 229.31);
+}
+
+@plugin "daisyui/theme" {
+  name: "mytheme-light";
+  default: true;
+  color-scheme: "light";
+  --color-base-100: oklch(100% 0 0);
+  --color-base-200: oklch(97% 0 0);
+  --color-base-300: oklch(92% 0 0);
+  --color-base-content: oklch(21% 0.006 285.885);
+  --color-primary: oklch(41.703% 0.099 251.473);
+  --color-primary-content: oklch(88.34% 0.019 251.473);
+  --color-secondary: oklch(64.092% 0.027 229.389);
+  --color-secondary-content: oklch(12.818% 0.005 229.389);
+  --color-accent: oklch(77% 0.152 181.912);
+  --color-accent-content: oklch(38% 0.063 188.416);
+  --color-neutral: oklch(14% 0.005 285.823);
+  --color-neutral-content: oklch(92% 0.004 286.32);
+  --color-info: oklch(74% 0.16 232.661);
+  --color-info-content: oklch(29% 0.066 243.157);
+  --color-success: oklch(76% 0.177 163.223);
+  --color-success-content: oklch(37% 0.077 168.94);
+  --color-warning: oklch(82% 0.189 84.429);
+  --color-warning-content: oklch(41% 0.112 45.904);
+  --color-error: oklch(71% 0.194 13.428);
+  --color-error-content: oklch(27% 0.105 12.094);
+  --radius-selector: 0.25rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.25rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 1;
+}
+
+/* 自訂主題變數：全域字型 + 自訂動畫 */
+@theme {
+  --default-font-family: 'Noto Sans TC', sans-serif;
+  --animate-pulse-soft: pulse-soft 3s infinite ease-in-out;
+}
+
+@keyframes pulse-soft {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50%      { transform: scale(1.05); opacity: 1; }
+}
+
+/* 捲動量變數註冊為數值型別，確保 clip-path 等用 calc() 引用時會即時重算 */
+@property --scroll-y {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --scroll-progress {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+/* === 晶片版圖式介面元件：工程模組（單側切角＋細框），取代圓角 SaaS 卡 === */
+.eng-module {
+  position: relative;
+  border: 1px solid color-mix(in oklch, var(--color-primary) 16%, transparent);
+  border-radius: 0;
+  box-shadow: none;
+}
+.eng-module-dark {
+  position: relative;
+  border: 1px solid color-mix(in oklch, var(--color-accent) 24%, transparent);
+  border-radius: 0;
+  box-shadow: none;
+}
+/* 單側切角 */
+.cut-tr { clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%); }
+.cut-bl { clip-path: polygon(0 0, 100% 0, 100% 100%, 18px 100%, 0 calc(100% - 18px)); }
+/* 角落狀態 pad */
+.eng-pad::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  width: 6px;
+  height: 6px;
+  background: var(--color-accent);
+}
+/* 切角按鈕（雙對角切口，去除膠囊感） */
+.eng-btn {
+  border-radius: 0 !important;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
