@@ -27,6 +27,7 @@ const STATUS_MAP = {
 const cam = camerasMock.find((c) => c.name === '4010-03')
 const status = ref('offline')
 const controlState = ref('offline')
+const txCount = ref(0)
 const videoWrap = ref(null)
 
 let streamer = null
@@ -79,6 +80,7 @@ async function start() {
       iceServers: defaultIceServers(),
       targetEl: videoWrap.value,
       onState: (s) => { controlState.value = s },
+      onSend: () => { txCount.value++ },
     })
     control.connect()
       .then(() => control.start(10))
@@ -119,6 +121,7 @@ const LOOK_SENS = 0.22
 // Move：右=+x、上=+y（與鍵盤 d/w 對齊）；Look：右=-yaw、上=+pitch（翻轉上下）並降速
 const moveJoy = makeJoystick((x, y) => control?.setMove(x, -y), () => control?.endMove())
 const lookJoy = makeJoystick((x, y) => control?.setLook(-x * LOOK_SENS, -y * LOOK_SENS), () => control?.endLook())
+const resetView = () => control?.resetView()
 
 onMounted(async () => {
   enter() // 進入示範場景 → 場域在線 +1
@@ -162,6 +165,7 @@ onBeforeUnmount(async () => {
           <span class="ctrl-badge" :class="`ctrl-${controlState}`" title="控制通道狀態">
             <Icon name="gamepad" class="w-3.5 h-3.5" />{{ controlState === 'ready' ? 'CTRL' : controlState.toUpperCase() }}
           </span>
+          <span class="ctrl-badge" title="已送出的控制指令數">TX {{ txCount }}</span>
           <button class="btn-reconnect flex justify-center items-center" title="重新連線" :disabled="status === 'loading'" @click="reconnect">
             <span v-if="status === 'loading'">…</span>
             <Icon v-else name="loading" class="w-3.5 h-3.5" />
@@ -217,6 +221,13 @@ onBeforeUnmount(async () => {
             </svg>
           </div>
 
+          <!-- 重置視角（回出生點，救回飛出場景的鏡頭）-->
+          <div class="control-group side">
+            <span class="label-text">重置</span>
+            <button class="pk pk-reset" title="重置視角（R）" @click="resetView">
+              <Icon name="reset" class="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         <!-- 常駐操作說明 -->
@@ -347,6 +358,8 @@ onBeforeUnmount(async () => {
 .pk:active { transform: scale(0.92); background: #38bdf8; color: #04263a; }
 .pk-stop { width: 46px; height: 46px; background: rgba(239, 68, 68, 0.18); border-color: rgba(239, 68, 68, 0.4); color: #fca5a5; }
 .pk-stop:active { background: #ef4444; color: #fff; }
+.pk-reset { width: 46px; height: 46px; }
+.pk-reset:active { background: #38bdf8; color: #04263a; }
 
 /* 常駐操作說明 */
 .ctrl-hint {

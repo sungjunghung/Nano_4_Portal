@@ -72,5 +72,10 @@ defineProps({ name: { type: String, required: true } })
       <path d="M18 6 6 18" />
       <path d="m6 6 12 12" />
     </template>
+    <!-- 重置 -->
+    <template v-else-if="name === 'reset'">
+      <path d="M3 12a9 9 0 1 0 2.64-6.36L3 8" />
+      <path d="M3 3v5h5" />
+    </template>
   </svg>
 </template>

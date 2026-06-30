@@ -30,6 +30,10 @@ jobs:
           VITE_USE_MOCK: 'true'
           VITE_DEFAULT_JANUS_URL: ${{ secrets.VITE_DEFAULT_JANUS_URL }}
           VITE_JANUS_TOKEN: ${{ secrets.VITE_JANUS_TOKEN }}
+          # TURN：控制 data channel 的 NAT 穿透需要
+          VITE_TURN_URL: ${{ secrets.VITE_TURN_URL }}
+          VITE_TURN_USERNAME: ${{ secrets.VITE_TURN_USERNAME }}
+          VITE_TURN_CREDENTIAL: ${{ secrets.VITE_TURN_CREDENTIAL }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

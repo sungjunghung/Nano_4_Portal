@@ -21,6 +21,7 @@ export class JanusControl {
     this.iceServers = opts.iceServers ?? []
     this.targetEl = opts.targetEl ?? window
     this.onState = opts.onState ?? (() => {})
+    this.onSend = opts.onSend ?? (() => {})
 
     this.moveSpeed = opts.moveSpeed ?? 300
     this.torqSpeed = opts.torqSpeed ?? 100
@@ -55,6 +56,8 @@ export class JanusControl {
     this._uiYaw = 0
     this._uiPitch = 0
     this._stopPulse = 0
+    this._tapKey = null
+    this._tapTicks = 0
 
     this.moveKeys = new Set(['w', 'a', 's', 'd', 'q', 'e'])
     this.rotKeys = new Set(['i', 'j', 'k', 'l'])
@@ -259,6 +262,7 @@ export class JanusControl {
     let has = this.tuningDirty
 
     if (this.keyStr) { cmd.key = this.keyStr; has = true }
+    else if (this._tapTicks > 0) { cmd.key = this._tapKey; this._tapTicks -= 1; if (this._tapTicks === 0) this._tapKey = null; has = true }
     else if (this.keyupCountKeys) { cmd.key = ''; this.keyupCountKeys -= 1; has = true }
 
     const scroll = this._consumeScroll()
@@ -303,6 +307,7 @@ export class JanusControl {
     }
     this.handle.data({ text: JSON.stringify(wire) })
     console.debug('[JanusControl] →', this.ctrlId, payload)
+    this.onSend(payload)
     this.tuningDirty = false
   }
 
@@ -326,6 +331,9 @@ export class JanusControl {
   endLook() { this._uiYaw = 0; this._uiPitch = 0; this.keyupCountTorq = this._releaseTicks() }
   zoom(dir) { this.scrollAccum += dir * 120 }
   stopMotion() { this._stopPulse = this._releaseTicks() }
+  // 單次送出按鍵（連送幾個 tick 確保送達）；'r' = 重置回出生點
+  tapKey(k) { this._tapKey = k; this._tapTicks = this._releaseTicks() }
+  resetView() { this.tapKey('r') }
 
   setTuning({ moveSpeed, torqSpeed, pitchRate }) {
     if (moveSpeed !== undefined) this.moveSpeed = Number(moveSpeed)
