@@ -39,10 +39,10 @@ const { open } = useJanusModal()
       </p>
       <div class="flex flex-col sm:flex-row justify-center gap-4">
         <a href="#vision" class="btn btn-primary btn-lg eng-btn shadow-lg shadow-primary-900/20">
-          深入瞭解平台技術
+          瞭解平台技術
         </a>
         <button type="button" @click="open" class="btn btn-lg eng-btn glass text-white border-white/20">
-          進入示範場域
+          進入示範場景
         </button>
       </div>
     </div>

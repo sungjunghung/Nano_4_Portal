@@ -6,6 +6,7 @@
  */
 import { ref, reactive, onMounted, onBeforeUnmount } from 'vue'
 import adapter from 'webrtc-adapter'
+import Icon from './Icon.vue'
 import { JanusStreamer } from '../janus/JanusStreamer'
 import { JanusControl, deriveCtrlId } from '../janus/JanusControl'
 import { defaultIceServers } from '../janus/iceServers'
@@ -120,7 +121,7 @@ const moveJoy = makeJoystick((x, y) => control?.setMove(x, -y), () => control?.e
 const lookJoy = makeJoystick((x, y) => control?.setLook(-x * LOOK_SENS, -y * LOOK_SENS), () => control?.endLook())
 
 onMounted(async () => {
-  enter() // 進入示範場域 → 場域在線 +1
+  enter() // 進入示範場景 → 場域在線 +1
   // janus.js 執行期需要全域 adapter，須在任何連線前設定
   window.adapter = adapter
   status.value = 'loading'
@@ -155,14 +156,15 @@ onBeforeUnmount(async () => {
     <div class="cell">
       <!-- 標題列 -->
       <div class="cell-bar">
-        <span class="cam-name">📹 {{ cam?.name ?? '—' }}</span>
-        <span class="online-tag">👥 場域在線 {{ online }}/{{ capacity }}</span>
+        <span class="cam-name"><Icon name="video" class="w-4 h-4" />{{ cam?.name ?? '—' }}</span>
+        <span class="online-tag"><Icon name="users" class="w-3.5 h-3.5" />場域在線 {{ online }}/{{ capacity }}</span>
         <div class="cell-actions">
           <span class="ctrl-badge" :class="`ctrl-${controlState}`" title="控制通道狀態">
-            🎮 {{ controlState === 'ready' ? 'CTRL' : controlState.toUpperCase() }}
+            <Icon name="gamepad" class="w-3.5 h-3.5" />{{ controlState === 'ready' ? 'CTRL' : controlState.toUpperCase() }}
           </span>
-          <button class="btn-reconnect" title="重新連線" :disabled="status === 'loading'" @click="reconnect">
-            {{ status === 'loading' ? '…' : '⟳' }}
+          <button class="btn-reconnect flex justify-center items-center" title="重新連線" :disabled="status === 'loading'" @click="reconnect">
+            <span v-if="status === 'loading'">…</span>
+            <Icon v-else name="loading" class="w-3.5 h-3.5" />
           </button>
           <span class="dot" :class="`dot-${status}`"></span>
           <span class="status-text" :class="`txt-${status}`">
@@ -178,10 +180,10 @@ onBeforeUnmount(async () => {
         <video :id="cam?.id" autoplay muted playsinline
           v-show="status === 'online'" class="video-main" />
         <div v-if="status !== 'online'" class="placeholder">
-          <span v-if="status === 'loading'">🔄 嘗試建立連線…</span>
-          <span v-else-if="status === 'stalled'">⚠️ 串流中斷，重試中…</span>
-          <span v-else-if="status === 'error'">⛔ 連線錯誤</span>
-          <span v-else>📵 訊號遺失 / 設備離線</span>
+          <span v-if="status === 'loading'" class="inline-flex items-center gap-2"><Icon name="loading" class="w-5 h-5 animate-spin" />嘗試建立連線…</span>
+          <span v-else-if="status === 'stalled'" class="inline-flex items-center gap-2"><Icon name="warning" class="w-5 h-5" />串流中斷，重試中…</span>
+          <span v-else-if="status === 'error'" class="inline-flex items-center gap-2"><Icon name="error" class="w-5 h-5" />連線錯誤</span>
+          <span v-else class="inline-flex items-center gap-2"><Icon name="offline" class="w-5 h-5" />訊號遺失 / 設備離線</span>
         </div>
 
         <!-- 螢幕控制介面（仿 Omniverse 搖桿面板；控制通道就緒才顯示，皆實際送指令）
@@ -247,12 +249,14 @@ onBeforeUnmount(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 10px;
   padding: 10px 14px;
   font-size: 13px;
   border-bottom: 1px solid #1e293b;
 }
-.cam-name { font-family: monospace; font-weight: 700; }
-.online-tag { font-family: monospace; font-size: 11px; color: #38bdf8; font-variant-numeric: tabular-nums; }
+.cam-name { display: inline-flex; align-items: center; gap: 6px; font-family: monospace; font-weight: 700; }
+.online-tag { display: inline-flex; align-items: center; gap: 5px; font-family: monospace; font-size: 11px; color: #38bdf8; font-variant-numeric: tabular-nums; }
 .cell-actions { display: flex; align-items: center; gap: 8px; }
 .btn-reconnect {
   background: #1e293b;
@@ -290,6 +294,7 @@ onBeforeUnmount(async () => {
 
 /* 控制通道狀態徽章 */
 .ctrl-badge {
+  display: inline-flex; align-items: center; gap: 4px;
   font-size: 9px; font-weight: 700; letter-spacing: 1px;
   padding: 2px 6px; border-radius: 4px;
   border: 1px solid #334155; color: #94a3b8;
@@ -320,6 +325,13 @@ onBeforeUnmount(async () => {
 .joystick-base { fill: rgba(255, 255, 255, 0.05); stroke: rgba(255, 255, 255, 0.2); stroke-width: 2; }
 .handle-move { fill: #3b82f6; filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5)); }
 .handle-look { fill: #ec4899; filter: drop-shadow(0 0 8px rgba(236, 72, 153, 0.5)); }
+
+/* 小螢幕：縮小控制面板與搖桿，避免佔滿畫面 */
+@media (max-width: 640px) {
+  .ctrl-panel { right: 10px; bottom: 10px; padding: 10px 12px; gap: 8px; border-radius: 16px; }
+  .control-group { gap: 6px; }
+  .joy { width: 82px; height: 82px; }
+}
 
 .pk {
   width: 46px; height: 38px;

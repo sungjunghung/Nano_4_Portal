@@ -1,6 +1,7 @@
 <script setup>
 import { useJanusModal } from '../composables/useJanusModal'
 import { useOnlineCount } from '../composables/useOnlineCount'
+import Icon from './Icon.vue'
 
 // 開啟全站共用的示範場域 modal
 const { open } = useJanusModal()
@@ -8,7 +9,7 @@ const { online, capacity } = useOnlineCount()
 </script>
 
 <template>
-  <footer class="py-32 px-6 overflow-hidden relative bg-[radial-gradient(circle_at_center,#0f172a_0%,#020617_100%)]">
+  <footer class="pt-32 pb-8 px-6 overflow-hidden relative bg-[radial-gradient(circle_at_center,#0f172a_0%,#020617_100%)]">
     <div
       class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] pointer-events-none z-0 bg-[radial-gradient(circle,rgba(118,185,0,0.1)_0%,transparent_70%)]">
     </div>
@@ -32,46 +33,40 @@ const { online, capacity } = useOnlineCount()
       <span class="hidden md:block pointer-events-none absolute -right-3 -top-3 w-7 h-7 border-r-2 border-t-2 border-accent/60"></span>
       <span class="hidden md:block pointer-events-none absolute -left-3 -bottom-3 w-7 h-7 border-l-2 border-b-2 border-accent/60"></span>
       <span class="hidden md:block pointer-events-none absolute -right-3 -bottom-3 w-7 h-7 border-r-2 border-b-2 border-accent/60"></span>
-      <div class="mb-12">
-        <span class="text-accent font-bold tracking-[0.2em] uppercase text-[10px] mb-4 block">NVIDIA Omniverse Digital Twin</span>
+      <div class="mb-2">
         <h2 class="section-title mb-8 mx-auto">晶創 26 Nano 4 數位孿生環境</h2>
-        <p class="text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed font-light">
-          跨越物理邊界，進入基於實時物理模擬的虛擬機房。監測 GPU 負載分布、進行硬體配置模擬，在 3D 空間中直觀掌控您的運算計畫。
-        </p>
       </div>
 
       <!-- 場域即時在線人數 -->
-      <div class="flex items-center justify-center gap-3 mb-10" title="虛擬環境目前連線人數">
-        <span class="relative flex h-3 w-3">
-          <span class="absolute inline-flex h-full w-full rounded-full bg-accent opacity-75 animate-ping"></span>
-          <span class="relative inline-flex rounded-full h-3 w-3 bg-accent"></span>
+      <div class="flex items-baseline justify-center gap-2.5 mb-10" title="虛擬環境目前連線人數">
+        <span class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+          <span class="relative flex h-2 w-2">
+            <span class="absolute inline-flex h-full w-full rounded-full bg-accent opacity-75 animate-ping"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
+          </span>
+          場域在線
         </span>
-        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">場域在線</span>
         <span class="text-4xl md:text-5xl font-bold text-white tabular-nums leading-none">
           {{ online }}<span class="text-2xl md:text-3xl text-slate-500">/{{ capacity }}</span>
         </span>
       </div>
 
-      <button type="button" @click="open" class="px-14 py-7 text-white eng-btn font-bold text-xl flex flex-col items-center group cursor-pointer
+      <button type="button" @click="open" class="px-8 py-5 md:px-14 md:py-7 text-white eng-btn font-bold text-base md:text-xl flex flex-col items-center group cursor-pointer
         bg-[linear-gradient(135deg,#76b900_0%,#166534_100%)] border border-[rgba(118,185,0,0.3)]
         shadow-[0_0_20px_rgba(118,185,0,0.2)] transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]
         hover:scale-[1.02] hover:-translate-y-[5px] hover:border-[rgba(118,185,0,0.6)]
         hover:shadow-[0_0_40px_rgba(118,185,0,0.5),inset_0_0_20px_rgba(255,255,255,0.2)]">
         <span class="flex items-center gap-4 mb-1">
-          <span class="text-2xl group-hover:rotate-12 transition-transform">🌐</span>
+          <Icon name="globe" class="w-6 h-6 group-hover:rotate-12 transition-transform" />
           <span>進入 Nano 4 Omniverse 環境</span>
         </span>
-        <span class="text-[10px] text-accent opacity-80 font-normal uppercase tracking-widest">Real-time Digital Twin Platform</span>
       </button>
 
-      <div
-        class="mt-24 pt-12 border-t border-slate-800/50 w-full text-slate-500 text-[10px] flex flex-col md:flex-row justify-between items-center gap-6 font-medium">
-        <p>© 2026 國家高速網路與計算中心 (NCHC) · 晶創 26 Nano 4 Portal</p>
-        <div class="flex gap-10">
-          <a href="https://iservice.nchc.org.tw/" class="hover:text-primary-400 transition uppercase tracking-widest">iService 服務網</a>
-          <a href="#" class="hover:text-primary-400 transition uppercase tracking-widest">技術支援</a>
-        </div>
-      </div>
+    </div>
+
+    <!-- 底部版權列：移出置中內容、滿版置中，置於最底部 -->
+    <div class="max-w-7xl mx-auto mt-24 pt-8 border-t border-slate-800/50 relative z-10 text-center text-slate-500 text-[10px] font-medium">
+      <p>© 2026 國家高速網路與計算中心 (NCHC) · 晶創 26 Nano 4 Portal</p>
     </div>
   </footer>
 </template>

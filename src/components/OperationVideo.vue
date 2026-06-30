@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import Icon from './Icon.vue'
 
 // 操作影片來源（暫用 public/nano4.mp4）。BASE_URL 確保 GitHub Pages 子路徑也正確。
 const videoSrc = import.meta.env.BASE_URL + 'nano4.mp4'
@@ -26,13 +27,13 @@ const goFullscreen = () => videoEl.value?.requestFullscreen?.()
         <!-- 全螢幕按鈕 -->
         <button v-if="videoSrc" type="button" @click="goFullscreen" title="全螢幕"
           class="absolute right-3 top-3 z-10 btn btn-sm btn-circle bg-black/50 border-white/20 text-white hover:bg-black/70">
-          ⛶
+          <Icon name="maximize" class="w-4 h-4" />
         </button>
 
         <!-- 預留區（尚未設定來源時）-->
         <div v-else class="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
           <div class="w-20 h-20 rounded-full border-2 border-accent/60 flex items-center justify-center mb-6">
-            <span class="text-3xl text-accent translate-x-0.5">▶</span>
+            <Icon name="play" class="w-8 h-8 text-accent translate-x-0.5" />
           </div>
           <p class="text-slate-100 text-lg font-semibold mb-2">操作影片預留區</p>
           <p class="text-slate-400 text-sm">
