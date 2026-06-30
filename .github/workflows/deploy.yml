@@ -25,6 +25,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+        env:
+          # mock 模式：resolveJanusUrl 直接回傳 DEFAULT_JANUS_URL，不打後端 API
+          VITE_USE_MOCK: 'true'
+          VITE_DEFAULT_JANUS_URL: ${{ secrets.VITE_DEFAULT_JANUS_URL }}
+          VITE_JANUS_TOKEN: ${{ secrets.VITE_JANUS_TOKEN }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
