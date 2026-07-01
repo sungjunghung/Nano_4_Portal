@@ -1,6 +1,6 @@
 <script setup>
 /**
- * Janus 單格串流檢視器（只顯示 4010-03）。
+ * Janus 單格串流檢視器（只顯示 4010-01）。
  * 自原 janus-demo 抽出串流生命週期主線：resolveJanusUrl → new JanusStreamer → connect()，
  * 狀態機 connecting/online/stalled/error/offline 由 streamer 回呼驅動。
  */
@@ -24,10 +24,11 @@ const STATUS_MAP = {
   offline: 'offline',
 }
 
-const cam = camerasMock.find((c) => c.name === '4010-03')
+const cam = camerasMock.find((c) => c.name === '4010-01')
 const status = ref('offline')
 const controlState = ref('offline')
 const txCount = ref(0)
+const lastInfo = ref('')
 const videoWrap = ref(null)
 
 let streamer = null
@@ -79,8 +80,10 @@ async function start() {
       token: import.meta.env.VITE_JANUS_TOKEN ?? '',
       iceServers: defaultIceServers(),
       targetEl: videoWrap.value,
+      turnRate: TURN_RATE,
       onState: (s) => { controlState.value = s },
       onSend: () => { txCount.value++ },
+      onInfo: (info) => { lastInfo.value = typeof info === 'string' ? info : JSON.stringify(info) },
     })
     control.connect()
       .then(() => control.start(10))
@@ -116,11 +119,35 @@ function makeJoystick(onUpdate, onEnd) {
   const up = (ev) => { active = false; try { ev.currentTarget.releasePointerCapture?.(ev.pointerId) } catch {} pos.cx = 100; pos.cy = 100; onEnd() }
   return { pos, down, drag, up }
 }
-// Look 靈敏度（搖桿輸出縮放，避免轉太快）
+// ── 手感調校 ──────────────────────────────────────────────────────────────
+// MOVE_SENS / LOOK_SENS：整體靈敏度（越大越快）
+// DEADZONE：中心死區，消除靜止飄移
+// EXPO：反應曲線指數（越大＝中間越細膩、要推到邊緣才全速；1 = 線性）
+const MOVE_SENS = 1.0
 const LOOK_SENS = 0.22
-// Move：右=+x、上=+y（與鍵盤 d/w 對齊）；Look：右=-yaw、上=+pitch（翻轉上下）並降速
-const moveJoy = makeJoystick((x, y) => control?.setMove(x, -y), () => control?.endMove())
-const lookJoy = makeJoystick((x, y) => control?.setLook(-x * LOOK_SENS, -y * LOOK_SENS), () => control?.endLook())
+const DEADZONE = 0.08
+const EXPO = 1.8
+// 面向前方（開環估算）：滿舵每秒轉多少弧度；若移動方向轉錯邊，把它改成負值
+const TURN_RATE = 1.5
+// 開車感：Move 左右＝轉向靈敏度（若轉錯邊，改負值）
+const STEER_SENS = 0.35
+
+// deadzone + 指數曲線：小幅度細膩、滿舵才全速（模擬遊戲手把手感）
+function shape(v) {
+  const s = Math.sign(v)
+  const a = Math.abs(v)
+  if (a < DEADZONE) return 0
+  const t = (a - DEADZONE) / (1 - DEADZONE)
+  return s * Math.pow(t, EXPO)
+}
+
+// Move（開車感）：上下＝前進後退、左右＝轉向（不平移）；前進向量依估算 yaw 旋轉成面向前方
+const moveJoy = makeJoystick(
+  (x, y) => { control?.setMove(0, -shape(y) * MOVE_SENS); control?.setSteer(-shape(x) * STEER_SENS) },
+  () => { control?.endMove(); control?.endSteer() },
+)
+// Look：自由視角（右=-yaw、上=+pitch，翻轉上下）
+const lookJoy = makeJoystick((x, y) => control?.setLook(-shape(x) * LOOK_SENS, -shape(y) * LOOK_SENS), () => control?.endLook())
 const resetView = () => control?.resetView()
 
 onMounted(async () => {
@@ -230,6 +257,9 @@ onBeforeUnmount(async () => {
           </div>
         </div>
 
+        <!-- 後端資訊回傳（key:"t"）—— 用來確認閉環校正的 dir 格式 -->
+        <div v-if="lastInfo" class="info-debug">info: {{ lastInfo }}</div>
+
         <!-- 常駐操作說明 -->
         <div class="ctrl-hint">
           <span><b>WASD</b> 移動</span>
@@ -331,7 +361,7 @@ onBeforeUnmount(async () => {
   font-size: 9px; font-weight: 700; letter-spacing: 1.5px;
   text-transform: uppercase; color: rgba(255, 255, 255, 0.5);
 }
-.joy { width: 110px; height: 110px; touch-action: none; cursor: grab; }
+.joy { width: 140px; height: 140px; touch-action: none; cursor: grab; }
 .joy:active { cursor: grabbing; }
 .joystick-base { fill: rgba(255, 255, 255, 0.05); stroke: rgba(255, 255, 255, 0.2); stroke-width: 2; }
 .handle-move { fill: #3b82f6; filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5)); }
@@ -341,7 +371,7 @@ onBeforeUnmount(async () => {
 @media (max-width: 640px) {
   .ctrl-panel { right: 10px; bottom: 10px; padding: 10px 12px; gap: 8px; border-radius: 16px; }
   .control-group { gap: 6px; }
-  .joy { width: 82px; height: 82px; }
+  .joy { width: 104px; height: 104px; }
 }
 
 .pk {
@@ -370,6 +400,14 @@ onBeforeUnmount(async () => {
   font-size: 11px; color: #cbd5e1;
 }
 .ctrl-hint b { color: #38bdf8; font-family: monospace; }
+
+/* 後端資訊回傳（除錯用，確認 dir 格式後可移除）*/
+.info-debug {
+  position: absolute; left: 12px; top: 12px; z-index: 6; max-width: 60%;
+  padding: 6px 10px; border-radius: 8px;
+  background: rgba(2, 6, 23, 0.7); border: 1px solid rgba(56, 189, 248, 0.4);
+  color: #7dd3fc; font-family: monospace; font-size: 11px; word-break: break-all;
+}
 .video-bg {
   position: absolute; inset: 0;
   width: 100%; height: 100%;

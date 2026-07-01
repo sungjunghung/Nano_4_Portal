@@ -22,10 +22,22 @@ export class JanusControl {
     this.targetEl = opts.targetEl ?? window
     this.onState = opts.onState ?? (() => {})
     this.onSend = opts.onSend ?? (() => {})
+    this.onInfo = opts.onInfo ?? (() => {})
 
     this.moveSpeed = opts.moveSpeed ?? 300
     this.torqSpeed = opts.torqSpeed ?? 100
     this.pitchRate = opts.pitchRate ?? 100
+
+    // 前端開環估算的相機朝向（弧度），用來把 Move 旋轉成「面向前方」。
+    // turnRate：滿舵 yaw 指令時每秒轉多少弧度（校準用；正負可翻轉轉向）。
+    this.turnRate = opts.turnRate ?? 1.5
+    this.yawSign = opts.yawSign ?? 1  // 若閉環校正後前後仍反，改成 -1
+    this._yaw = 0
+    // 最後一次收到後端真值朝向的時間；逾 yawTruthTtl 未更新就停用旋轉，
+    // 避免純開環估算漂移到 ~180° 時把前後翻面（無真值時退回不旋轉、穩定）。
+    this._yawTruthAt = 0
+    this.yawTruthTtl = opts.yawTruthTtl ?? 1500
+    this.infoTimer = null
 
     this.janus = null
     this.handle = null
@@ -55,6 +67,7 @@ export class JanusControl {
     this._uiZ = 0
     this._uiYaw = 0
     this._uiPitch = 0
+    this._uiSteer = 0
     this._stopPulse = 0
     this._tapKey = null
     this._tapTicks = 0
@@ -154,7 +167,37 @@ export class JanusControl {
     } else if (msg.textroom === 'error') {
       console.warn('[JanusControl] textroom error', msg.error || msg)
       this.onState('error')
+    } else if (msg.textroom === 'message') {
+      this._applyInfo(msg)
     }
+  }
+
+  // 收到後端資訊回應（來自 key:"t"）→ 用真實朝向覆蓋估算 yaw，消除漂移
+  _applyInfo(msg) {
+    const raw = msg.text
+    let info
+    try { info = typeof raw === 'string' ? JSON.parse(raw) : raw } catch { console.log('[JanusControl] info(raw)', raw); this.onInfo(raw); return }
+    console.log('[JanusControl] info', info)
+    this.onInfo(info)
+    if (!info || typeof info !== 'object') return
+    const d = info.dir ?? info.direction ?? info.forward
+    if (Array.isArray(d) && d.length >= 2) {
+      // 假設 dir 是世界前向量；yaw = atan2(x, y)（對齊 accl 的 x=right, y=forward）
+      const yaw = Math.atan2(Number(d[0]), Number(d[1]))
+      if (Number.isFinite(yaw)) { this._yaw = yaw * this.yawSign; this._yawTruthAt = Date.now() }
+    } else if (typeof info.yaw === 'number') {
+      this._yaw = info.yaw * this.yawSign
+      this._yawTruthAt = Date.now()
+    }
+  }
+
+  _sendInfoRequest() {
+    if (!this.joined || !this.handle?.webrtcStuff?.dataChannel) return
+    const wire = {
+      textroom: 'message', transaction: Janus.randomString(12),
+      room: this.roomId, to: this.ctrlId, text: JSON.stringify({ key: 't' }),
+    }
+    this.handle.data({ text: JSON.stringify(wire) })
   }
 
   // ── 輸入處理 ────────────────────────────────────────────────────────────
@@ -285,11 +328,25 @@ export class JanusControl {
     else if (this.keyupCountMove) { cmd.accl = ACCL_RELEASE; this.keyupCountMove -= 1; has = true }
 
     const mouseTorq = this._consumeMouseTorq()
-    const uiLookActive = this._uiYaw || this._uiPitch
+    const yawInput = this._uiYaw + this._uiSteer // Look yaw + Move 轉向
+    const uiTorqActive = yawInput || this._uiPitch
     if (mouseTorq) { cmd.torq = mouseTorq; has = true }
-    else if (uiLookActive) { cmd.torq = [this._uiYaw * this.torqSpeed, this._uiPitch * this.pitchRate, 0]; this.keyupCountTorq = this._releaseTicks(); has = true }
+    else if (uiTorqActive) { cmd.torq = [yawInput * this.torqSpeed, this._uiPitch * this.pitchRate, 0]; this.keyupCountTorq = this._releaseTicks(); has = true }
     else if (hasRot) { cmd.torq = [rx, ry, 0]; this.keyupCountTorq = this._releaseTicks(); has = true }
     else if (this.keyupCountTorq) { cmd.torq = [0, 0, 0]; this.keyupCountTorq -= 1; has = true }
+
+    // ── 開環估算相機 yaw，並把 Move 旋轉成相機相對（面向前方）──────────────
+    // 把當前 yaw 指令（正規化）當角速度積分；只有在轉頭時累加。
+    const yawCmd = cmd.torq ? cmd.torq[0] / (this.torqSpeed || 1) : 0
+    this._yaw += yawCmd * this.turnRate / (this.controlHz || 10)
+    // 只有在後端真值朝向仍新鮮時才把 Move 旋轉成相機相對；真值過期就送原始
+    // accl（不旋轉），寧可少一點「面向前方」也不要開環漂移導致前後顛倒。
+    const yawFresh = (Date.now() - this._yawTruthAt) < this.yawTruthTtl
+    if (cmd.accl && yawFresh) {
+      const c = Math.cos(this._yaw), s = Math.sin(this._yaw)
+      const [ax, ay, az] = cmd.accl
+      cmd.accl = [ax * c - ay * s, ax * s + ay * c, az]
+    }
 
     return has ? cmd : null
   }
@@ -315,11 +372,15 @@ export class JanusControl {
     this.stop()
     this.controlHz = hz
     this.timer = setInterval(() => this._sendOnce(), 1000 / hz)
+    // 每 400ms 向後端要一次相機朝向，用真值校正估算 yaw（消除漂移）
+    this.infoTimer = setInterval(() => this._sendInfoRequest(), 400)
   }
 
   stop() {
     if (this.timer) clearInterval(this.timer)
     this.timer = null
+    if (this.infoTimer) clearInterval(this.infoTimer)
+    this.infoTimer = null
   }
 
   // ── 螢幕控制介面 API（press-hold）────────────────────────────────────────
@@ -329,11 +390,14 @@ export class JanusControl {
   endVertical() { this._uiZ = 0; if (!this._uiX && !this._uiY) this.keyupCountMove = this._releaseTicks() }
   setLook(yaw, pitch) { this._uiYaw = yaw; this._uiPitch = pitch }
   endLook() { this._uiYaw = 0; this._uiPitch = 0; this.keyupCountTorq = this._releaseTicks() }
+  // 開車感轉向：Move 搖桿左右 → 併入 yaw
+  setSteer(s) { this._uiSteer = s }
+  endSteer() { this._uiSteer = 0; if (!this._uiYaw && !this._uiPitch) this.keyupCountTorq = this._releaseTicks() }
   zoom(dir) { this.scrollAccum += dir * 120 }
   stopMotion() { this._stopPulse = this._releaseTicks() }
   // 單次送出按鍵（連送幾個 tick 確保送達）；'r' = 重置回出生點
   tapKey(k) { this._tapKey = k; this._tapTicks = this._releaseTicks() }
-  resetView() { this.tapKey('r') }
+  resetView() { this._yaw = 0; this.tapKey('r') }
 
   setTuning({ moveSpeed, torqSpeed, pitchRate }) {
     if (moveSpeed !== undefined) this.moveSpeed = Number(moveSpeed)
